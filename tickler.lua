@@ -7,7 +7,7 @@
 addon.name      = 'tickler';                    
 addon.author    = 'nappaa';  
 addon.version   = '1.0';                 
-addon.desc      = 'Port of the tickler addon to ashita v4';  
+addon.desc      = 'A timer for the next tick of resting hp/mp.';  
 
 require 'common'
 local chat = require('chat');
@@ -29,11 +29,11 @@ local default_settings =
         position_x = scaling.scale_w(-180),
         position_y = scaling.scale_h(20),
     },
-    show_summary    = false,
-    debug           = false
+    show_summary    = false
 };
 local tickler = T{
-    settings = settings.load(default_settings)
+    settings = settings.load(default_settings),
+    debug = false
 };
 
 ----------------------------------------------------------------------------------------------------
@@ -55,9 +55,9 @@ local function update_settings(s)
     settings.save();
 end
 
---[[
-* Registers a callback for the settings to monitor for character switches.
---]]
+----------------------------------------------------------------------------------------------------
+-- Registers a callback for the settings to monitor for character switches.
+----------------------------------------------------------------------------------------------------
 settings.register('settings', 'settings_update', update_settings);
 
 ----------------------------------------------------------------------------------------------------
@@ -122,8 +122,8 @@ ashita.events.register('command', 'command_cb', function(e)
 
     -- Toggle debug mode
     if (args[2] == 'debug') then
-        tickler.settings.debug = not tickler.settings.debug;
-        if tickler.settings.debug == false then
+        tickler.debug = not tickler.debug;
+        if tickler.debug == false then
             msg('Debug output disabled')
         else
             msg('Debug output enabled')
@@ -141,7 +141,7 @@ ashita.events.register('packet_out', 'packet_out_cb', function(e)
     -- Listen for heal toggle packet
     if (e.id == 0x0E8) then
         restPacketSent = true;
-        if (tickler.settings.debug) then msg('DEBUG: Detected outgoing heal toggle packet [0x0E8]') end;
+        if (tickler.debug) then msg('DEBUG: Detected outgoing heal toggle packet [0x0E8]') end;
     end
 
     return false;
@@ -154,15 +154,15 @@ end);
 ashita.events.register('packet_in', 'packet_in_cb', function(e)
     -- Listen for character update packet and read the address that contains player status
     if (e.id == 0x037) then
-        if (tickler.settings.debug) then msg('DEBUG: Detected incoming character update packet [0x037]') end;
+        if (tickler.debug) then msg('DEBUG: Detected incoming character update packet [0x037]') end;
         local packet = e.data:totable()
         local playerStatus = packet[0x31];
         if (playerStatus == 33) then 
             playerIsResting = true
-            if (tickler.settings.debug) then msg('DEBUG: player is resting is ' .. tostring(playerIsResting)) end;
+            if (tickler.debug) then msg('DEBUG: player is resting is ' .. tostring(playerIsResting)) end;
         else
             playerIsResting = false
-            if (tickler.settings.debug) then msg('DEBUG: player is resting is ' .. tostring(playerIsResting)) end;
+            if (tickler.debug) then msg('DEBUG: player is resting is ' .. tostring(playerIsResting)) end;
         end
 
         if (playerIsResting) then
@@ -192,7 +192,7 @@ ashita.events.register('packet_in', 'packet_in_cb', function(e)
             -- TODO: discard (or count separately) update packets that are not related to resting
             currentTick = currentTick + 1;
 
-            if (tickler.settings.debug) then msg('DEBUG: currentTick is ' .. tostring(currentTick)) end;
+            if (tickler.debug) then msg('DEBUG: currentTick is ' .. tostring(currentTick)) end;
             
         else
             -- When we're no longer resting, reset tick counter to 0
@@ -202,12 +202,10 @@ ashita.events.register('packet_in', 'packet_in_cb', function(e)
             --if (tickler.show_summary) then
 
         end
-
         -- Uncomment to show full packet data
         -- for k, v in pairs(packet) do
         --     print(k .. ': ' .. v);
         -- end
-
     end
 
     return false;
@@ -234,7 +232,6 @@ ashita.events.register('d3d_present', 'present_cb', function()
         tickler.font.text = restTimer.label
     else
         -- If we're not resting, blank out the timer
-        -- f:SetText('');
         tickler.font.text = '';
     end
 
