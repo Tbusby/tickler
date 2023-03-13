@@ -3,6 +3,7 @@
 
 -- TODO:
 --    Make a loading bar tick down instead of / aswel as timer number
+--    Dont display on /shutdown
 
 addon.name      = 'tickler';                    
 addon.author    = 'nappaa';  
@@ -90,8 +91,8 @@ end);
 ----------------------------------------------------------------------------------------------------
 ashita.events.register('unload', 'unload_cb', function()
     if (tickler.font ~= nil) then
-        ticker.settings.font:destroy();
-        tickler.settings.font = nil;
+        tickler.font:destroy();
+        tickler.font = nil;
     end
 
     settings.save();
