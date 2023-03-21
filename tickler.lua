@@ -50,8 +50,8 @@ local function update_settings(s)
     end
 
     -- Apply the font settings..
-    if (tickler.font ~= nil) then
-        tickler.font:apply(tickler.settings.font);
+    if (tickler.displayfont ~= nil) then
+        tickler.displayfont:apply(tickler.settings.font);
     end
 
     -- Save the current settings..
@@ -83,7 +83,7 @@ ashita.events.register('load', 'load_cb', function()
         label      = 0  -- Seconds until next healing tick (this is what gets rendered)
     };
 
-    tickler.font = fonts.new(tickler.settings.font)
+    tickler.displayfont = fonts.new(tickler.settings.font)
 
 end);
 
@@ -92,13 +92,11 @@ end);
 -- desc: Event called when the addon is being unloaded.
 ----------------------------------------------------------------------------------------------------
 ashita.events.register('unload', 'unload_cb', function()
-    if (tickler.font ~= nil) then
-        tickler.font:destroy();
-        tickler.font = nil;
-    end
-
     update_settings();
-
+    if (tickler.displayfont ~= nil) then
+        tickler.displayfont:destroy();
+        tickler.displayfont = nil;
+    end
 end);
 
 ----------------------------------------------------------------------------------------------------
@@ -232,10 +230,10 @@ ashita.events.register('d3d_present', 'present_cb', function()
         end
 
         restTimer.label = tostring(currentDelay - restTimer.label);
-        tickler.font.text = restTimer.label
+        tickler.displayfont.text = restTimer.label
     else
         -- If we're not resting, blank out the timer
-        tickler.font.text = '';
+        tickler.displayfont.text = '';
     end
 
 end);
