@@ -49,10 +49,10 @@ local function update_settings(s)
         tickler.settings = s;
     end
 
-    -- Apply the font settings..
-    if (tickler.displayfont ~= nil) then
-        tickler.displayfont:apply(tickler.settings.font);
-    end
+    -- -- Apply the font settings..
+    -- if (tickler.displayfont ~= nil) then
+    --     tickler.displayfont:apply(tickler.settings.font);
+    -- end
 
     -- Save the current settings..
     settings.save();
@@ -234,6 +234,14 @@ ashita.events.register('d3d_present', 'present_cb', function()
     else
         -- If we're not resting, blank out the timer
         tickler.displayfont.text = '';
+    end
+
+    local positionX = tickler.displayfont.position_x;
+    local positionY = tickler.displayfont.position_y;
+    if (positionX ~= tickler.settings.font.position_x) or (positionY ~= tickler.settings.font.position_y) then
+        tickler.settings.font.position_x = positionX;
+        tickler.settings.font.position_y = positionY;
+        settings.save();        
     end
 
 end);
