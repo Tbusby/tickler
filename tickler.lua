@@ -235,8 +235,6 @@ ashita.events.register('d3d_present', 'present_cb', function()
     else
         -- If we're not resting, blank out the timer
         tickler.displayfont.text = '';
-<<<<<<< HEAD
-=======
     end
 
     local positionX = tickler.displayfont.position_x;
@@ -245,7 +243,6 @@ ashita.events.register('d3d_present', 'present_cb', function()
         tickler.settings.font.position_x = positionX;
         tickler.settings.font.position_y = positionY;
         settings.save();        
->>>>>>> feature/savesettings
     end
 
 end);
